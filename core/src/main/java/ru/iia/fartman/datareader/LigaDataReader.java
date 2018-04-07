@@ -7,14 +7,24 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
 import ru.iia.fartman.orm.entity.DataEntity;
+import ru.iia.fartman.orm.repositories.DataEntityRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LigaDataReader extends AbstractDataReader {
+@Service
+public class LigaDataReader implements ILigaDataReader{
 
 	Logger logger = LogManager.getLogger(LigaDataReader.class);
+	@Autowired
+	DataEntityRepository dataRepository;
+
+	@Autowired
+	ApplicationContext context;
 
 	@Override
 	public List<DataEntity> read(HtmlPage page) {
@@ -47,7 +57,9 @@ public class LigaDataReader extends AbstractDataReader {
 						resultEl.setwFirstString(childs.get(3).asText());
 						resultEl.setDrawString(childs.get(4).asText());
 						resultEl.setwSecondString(childs.get(5).asText());
+						resultEl.setResource(page.getDocumentURI());
 						result.add(resultEl);
+						dataRepository.save(resultEl);
 						logger.trace(resultEl.toString());
 					}
 				}
@@ -69,6 +81,8 @@ public class LigaDataReader extends AbstractDataReader {
 					result.setwFirstString(childs.get(3).asText());
 					result.setDrawString(childs.get(4).asText());
 					result.setwSecondString(childs.get(5).asText());
+					result.setResource(page.getDocumentURI());
+					dataRepository.save(result);
 					logger.trace(result.toString());
 				}
 			}

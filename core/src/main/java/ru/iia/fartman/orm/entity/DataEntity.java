@@ -1,20 +1,34 @@
 package ru.iia.fartman.orm.entity;
 
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.util.UUID;
 
 @Entity
 public class DataEntity {
-
+	@Column
 	private String dateString;
+	@Column
 	private String nameString;
+	@Column
 	private String wFirstString;
+	@Column
 	private String drawString;
+	@Column
 	private String wSecondString;
+	@Column
 	private String additionalNumber;
 
+	@Column
+	private String resource;
+
+	@Id
+	@Column(unique = true)
 	private UUID uuid;
 
-	private DataEntity() {
+	public DataEntity() {
 
 	}
 
@@ -83,7 +97,15 @@ public class DataEntity {
 
 
 	public String toString() {
-		return uuid.toString() + "@" + dateString + ";" + nameString + ";" + wFirstString + ";" + drawString + ";"
+		return resource + "::" + uuid.toString() + "@" + dateString + ";" + nameString + ";" + wFirstString + ";" + drawString + ";"
 				+ wSecondString + ";" + additionalNumber;
+	}
+
+	public String getResource() {
+		return resource;
+	}
+
+	public void setResource(String resource) {
+		this.resource = resource;
 	}
 }

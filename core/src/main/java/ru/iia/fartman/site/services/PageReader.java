@@ -10,7 +10,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.iia.fartman.datareader.AbstractDataReader;
+import ru.iia.fartman.datareader.IDataReader;
 import ru.iia.fartman.orm.entity.DataEntity;
 import ru.iia.fartman.orm.entity.Link;
 import ru.iia.fartman.site.filter.AbstractLinkFilter;
@@ -59,7 +59,7 @@ public class PageReader implements Runnable {
 	/**
 	 *
 	 */
-	private AbstractDataReader dataReader;
+	private IDataReader dataReader;
 
 	private String threadName;
 
@@ -99,7 +99,7 @@ public class PageReader implements Runnable {
 	 * @param queue
 	 * @param baseURI
 	 */
-	public PageReader(AbstractLinkFilter filter, AbstractDataReader dataReader, QueueUrls queue, String baseURI) {
+	public PageReader(AbstractLinkFilter filter, IDataReader dataReader, QueueUrls queue, String baseURI) {
 		this();
 		this.baseURI = baseURI;
 		this.queue = queue;

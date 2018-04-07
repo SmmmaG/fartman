@@ -5,6 +5,6 @@ import ru.iia.fartman.orm.entity.DataEntity;
 
 import java.util.List;
 
-public abstract class AbstractDataReader {
-	public abstract List<DataEntity> read(HtmlPage page);
+public interface IDataReader {
+	List<DataEntity> read(HtmlPage page);
 }
