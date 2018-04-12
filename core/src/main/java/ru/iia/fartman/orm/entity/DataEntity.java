@@ -3,30 +3,37 @@ package ru.iia.fartman.orm.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.util.UUID;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class DataEntity {
-	@Column
+	@Column(name = "date", length = 128, nullable = false)
 	private String dateString;
-	@Column
+	@Column(name = "name", length = 128, nullable = false)
 	private String nameString;
-	@Column
+	@Column(name = "win_first", length = 128, nullable = false)
 	private String wFirstString;
-	@Column
+	@Column(name = "draw", length = 128, nullable = false)
 	private String drawString;
-	@Column
+	@Column(name = "win_second", length = 128, nullable = false)
 	private String wSecondString;
-	@Column
+	@Column(name = "event_number", length = 128, nullable = false)
 	private String additionalNumber;
-
-	@Column
-	private String resource;
+	@ManyToOne
+	@JoinColumn(name = "resource")
+	private Link resource;
+	@ManyToOne
+	@JoinColumn(name = "startId")
+	private ExecuteStart start;
 
 	@Id
 	@Column(unique = true)
-	private UUID uuid;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long uuid;
 
 	public DataEntity() {
 
@@ -34,7 +41,7 @@ public class DataEntity {
 
 	public static DataEntity newDataEntity() {
 		DataEntity result = new DataEntity();
-		result.uuid = UUID.randomUUID();
+		//result.uuid = UUID.randomUUID();
 		return result;
 	}
 
@@ -87,25 +94,33 @@ public class DataEntity {
 	}
 
 
-	public UUID getUuid() {
+	public Long getUuid() {
 		return uuid;
 	}
 
-	protected void setUuid(UUID uuid) {
+	protected void setUuid(Long uuid) {
 		this.uuid = uuid;
 	}
 
 
 	public String toString() {
-		return resource + "::" + uuid.toString() + "@" + dateString + ";" + nameString + ";" + wFirstString + ";" + drawString + ";"
+		return resource + "::" + uuid + "@" + dateString + ";" + nameString + ";" + wFirstString + ";" + drawString + ";"
 				+ wSecondString + ";" + additionalNumber;
 	}
 
-	public String getResource() {
+	public ExecuteStart getStart() {
+		return start;
+	}
+
+	public void setStart(ExecuteStart resource) {
+		this.start = resource;
+	}
+
+	public Link getResource() {
 		return resource;
 	}
 
-	public void setResource(String resource) {
+	public void setResource(Link resource) {
 		this.resource = resource;
 	}
 }

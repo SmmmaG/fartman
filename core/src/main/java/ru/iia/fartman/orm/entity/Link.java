@@ -2,32 +2,27 @@ package ru.iia.fartman.orm.entity;
 
 import org.apache.commons.validator.UrlValidator;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 /**
  * Class link for using in application
  */
+@Entity
 public class Link {
+
+	@Id
+	@Column(unique = true)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long uuid;
 	/**
 	 * link string
 	 */
+	@Column(name = "link")
 	private String link;
-
-	/**
-	 * Get http link string
-	 *
-	 * @return string link
-	 */
-	public String getLink() {
-		return link;
-	}
-
-	/**
-	 * Set http link
-	 *
-	 * @param link link string
-	 */
-	public void setLink(String link) {
-		this.link = link;
-	}
 
 	/**
 	 * Create link from array of link parts
@@ -49,4 +44,37 @@ public class Link {
 		}
 		return null;
 	}
+
+	/**
+	 * Get http link string
+	 *
+	 * @return string link
+	 */
+	public String getLink() {
+		return link;
+	}
+
+	/**
+	 * Set http link
+	 *
+	 * @param link link string
+	 */
+	public void setLink(String link) {
+		this.link = link;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj)
+				|| (obj instanceof Link && ((Link) obj).link.equals(link));
+	}
+
+	public Long getUuid() {
+		return uuid;
+	}
+
+	protected void setUuid(Long uuid) {
+		this.uuid = uuid;
+	}
+
 }

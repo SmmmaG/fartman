@@ -37,7 +37,7 @@
         </Logger>
         <!-- Root Logger -->
         <Root level="INFO">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="All"/>
         </Root>
     </Loggers>
 </Configuration>

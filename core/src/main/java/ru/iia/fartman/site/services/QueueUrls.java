@@ -26,9 +26,12 @@ public class QueueUrls {
 	 * Queue of URLs for Threads
 	 */
 	private Queue<Link> queue = new ConcurrentLinkedQueue<>();
+	private List<String> waitingThreadsList;
 
 	public QueueUrls() {
 		workingThreadsList = Collections.synchronizedList(new ArrayList<>());
+		waitingThreadsList = Collections.synchronizedList(new ArrayList<>());
+
 		linkSet = Collections.synchronizedSet(new HashSet<>());
 	}
 
@@ -59,16 +62,34 @@ public class QueueUrls {
 		}
 	}
 
-	public synchronized void startThread(String threadName) {
-		workingThreadsList.add(threadName);
+	public void startWorkThread(String threadName) {
+		synchronized (waitingThreadsList) {
+			waitingThreadsList.add(threadName);
+		}
 	}
 
-	public synchronized boolean endThread(String threadName) {
-		return workingThreadsList.remove(threadName);
+	public boolean endWorkThread(String threadName) {
+		synchronized (waitingThreadsList) {
+
+			return waitingThreadsList.remove(threadName);
+		}
+	}
+
+	public void startThread(String threadName) {
+		synchronized (workingThreadsList) {
+			workingThreadsList.add(threadName);
+		}
+	}
+
+	public boolean endThread(String threadName) {
+		synchronized (workingThreadsList) {
+
+			return workingThreadsList.remove(threadName);
+		}
 	}
 
 	public boolean isWorking() {
-		return !workingThreadsList.isEmpty();
+		return !workingThreadsList.isEmpty() && !waitingThreadsList.isEmpty();
 	}
 
 }

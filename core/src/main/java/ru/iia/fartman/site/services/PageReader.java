@@ -27,7 +27,6 @@ import java.util.Locale;
  */
 public class PageReader implements Runnable {
 
-	private String name;
 	/**
 	 * logger used  for logging information for diagnostic
 	 */
@@ -40,6 +39,7 @@ public class PageReader implements Runnable {
 	 * default encoding for russian internet
 	 */
 	public static String DEFAULT_ENCODING = "windows-1251";
+	private String name;
 	/**
 	 * web clent - instance of virtual browser
 	 */
@@ -84,16 +84,6 @@ public class PageReader implements Runnable {
 		webClient.getOptions().setThrowExceptionOnScriptError(false);
 	}
 
-	public void initProxy(String url) {
-		webClient.getOptions().getProxyConfig().setProxyAutoConfigUrl(url);
-	}
-
-	public void initProxy(String host, String port, boolean isSocks) {
-		webClient.getOptions().getProxyConfig().setSocksProxy(isSocks);
-		webClient.getOptions().getProxyConfig().setProxyHost(host);
-		webClient.getOptions().getProxyConfig().setProxyHost(port);
-	}
-
 	/**
 	 * @param filter
 	 * @param queue
@@ -108,6 +98,15 @@ public class PageReader implements Runnable {
 
 	}
 
+	public void initProxy(String url) {
+		webClient.getOptions().getProxyConfig().setProxyAutoConfigUrl(url);
+	}
+
+	public void initProxy(String host, int port, boolean isSocks) {
+		webClient.getOptions().getProxyConfig().setSocksProxy(isSocks);
+		webClient.getOptions().getProxyConfig().setProxyHost(host);
+		webClient.getOptions().getProxyConfig().setProxyPort(port);
+	}
 
 	/**
 	 * Method gets web html page by link string
@@ -140,10 +139,11 @@ public class PageReader implements Runnable {
 	public void run() {
 		try {
 			while (queue.isWorking()) {
+				queue.startWorkThread(threadName);
 				Link currentLink = queue.getNextUrl();
 				HtmlPage page = getPage(currentLink.getLink(), null);
 				if (page != null) {
-					List<DataEntity> dataEntity = dataReader.read(page);
+					List<DataEntity> dataEntity = dataReader.read(page, currentLink);
 					List<HtmlAnchor> list = page.getAnchors();
 
 					for (HtmlAnchor anchor : list) {
@@ -170,6 +170,7 @@ public class PageReader implements Runnable {
 			 */
 
 				}
+				queue.endWorkThread(threadName);
 			}
 		} finally {
 			queue.endThread(getThreadName());
