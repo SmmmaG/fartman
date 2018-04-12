@@ -17,7 +17,7 @@ public class Link {
     /**
      * link string
      */
-    @Column(name = "link")
+    @Column(name = "link", length = 4096)
     private String link;
 
     /**

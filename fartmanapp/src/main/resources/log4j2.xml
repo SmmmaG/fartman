@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Appenders>
-        <File name="All" fileName="c:/logs/All.log" append="false">
+        <File name="All" fileName="/logs/All.log" append="false">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
             <Log4j1XmlLayout/>
         </File>
-        <File name="reader" fileName="c:/logs/reader.log" append="false">
+        <File name="reader" fileName="/logs/reader.log" append="false">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
             <Log4j1XmlLayout/>
         </File>
-        <File name="data" fileName="c:/logs/data.log" append="false">
+        <File name="data" fileName="/logs/data.log" append="false">
             <Log4j1XmlLayout/>
         </File>
-        <File name="My" fileName="c:/logs/my.log" append="false">
+        <File name="My" fileName="/logs/my.log" append="false">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
             <Log4j1XmlLayout/>
         </File>
