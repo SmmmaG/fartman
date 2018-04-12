@@ -62,6 +62,7 @@ public class PageReader implements Runnable {
 	private IDataReader dataReader;
 
 	private String threadName;
+	private boolean isWorking;
 
 	/**
 	 *
@@ -95,6 +96,8 @@ public class PageReader implements Runnable {
 		this.queue = queue;
 		this.filter = filter;
 		this.dataReader = dataReader;
+		this.isWorking = false;
+		queue.startWorkThread(this);
 
 	}
 
@@ -138,8 +141,8 @@ public class PageReader implements Runnable {
 	@Override
 	public void run() {
 		try {
-			while (queue.isWorking()) {
-				queue.startWorkThread(threadName);
+			while (queue.isEmptyThreads() || queue.isWorking(getThreadName())) {
+				isWorking = true;
 				Link currentLink = queue.getNextUrl();
 				HtmlPage page = getPage(currentLink.getLink(), null);
 				if (page != null) {
@@ -170,7 +173,10 @@ public class PageReader implements Runnable {
 			 */
 
 				}
-				queue.endWorkThread(threadName);
+				isWorking = false;
+				if (queue.isEmptyThreads()) {
+					break;
+				}
 			}
 		} finally {
 			queue.endThread(getThreadName());
@@ -183,5 +189,9 @@ public class PageReader implements Runnable {
 
 	public void setThreadName(String threadName) {
 		this.threadName = threadName;
+	}
+
+	public boolean isWorking() {
+		return isWorking;
 	}
 }

@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import ru.iia.fartman.site.services.LigaConfiger;
 
 @SpringBootApplication
-@EnableScheduling
+
 @ComponentScan("ru.iia")
 public class Application {
 	private static final Logger logger = LogManager.getLogger(Application.class);

@@ -9,25 +9,18 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.util.Properties;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 @Configuration
 @EnableTransactionManagement
 @ComponentScan("ru.iia.fartman")
 @PropertySource("classpath:app.properties")
 @EnableJpaRepositories("ru.iia.fartman")
-public class DataBaseService implements SchedulingConfigurer {
+public class DataBaseService {
 
 	private static final String PROP_DATABASE_DRIVER = "db.driver";
 	private static final String PROP_DATABASE_PASSWORD = "db.password";
@@ -82,30 +75,6 @@ public class DataBaseService implements SchedulingConfigurer {
 
 		return properties;
 	}
-
-	@Bean
-	public TaskScheduler taskScheduler() {
-		return new ConcurrentTaskScheduler();
-	}
-
-
-	@Override
-	public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
-		ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
-
-		threadPoolTaskScheduler.setPoolSize(10);
-		threadPoolTaskScheduler.setThreadNamePrefix("my-scheduled-task-pool-");
-		threadPoolTaskScheduler.initialize();
-
-		scheduledTaskRegistrar.setTaskScheduler(threadPoolTaskScheduler);
-	}
-
-
-	@Bean(destroyMethod = "shutdown")
-	public Executor taskExecutor() {
-		return Executors.newScheduledThreadPool(10);
-	}
-
 
 
 }

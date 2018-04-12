@@ -26,7 +26,7 @@ public class QueueUrls {
 	 * Queue of URLs for Threads
 	 */
 	private Queue<Link> queue = new ConcurrentLinkedQueue<>();
-	private List<String> waitingThreadsList;
+	private List<PageReader> waitingThreadsList;
 
 	public QueueUrls() {
 		workingThreadsList = Collections.synchronizedList(new ArrayList<>());
@@ -36,7 +36,7 @@ public class QueueUrls {
 	}
 
 	public Link getNextUrl() {
-		while (isWorking()) {
+		while (isWorking("")) {
 			if (!queue.isEmpty()) {
 				synchronized (queue) {
 					return queue.poll();
@@ -62,16 +62,9 @@ public class QueueUrls {
 		}
 	}
 
-	public void startWorkThread(String threadName) {
+	public void startWorkThread(PageReader threadName) {
 		synchronized (waitingThreadsList) {
 			waitingThreadsList.add(threadName);
-		}
-	}
-
-	public boolean endWorkThread(String threadName) {
-		synchronized (waitingThreadsList) {
-
-			return waitingThreadsList.remove(threadName);
 		}
 	}
 
@@ -88,8 +81,17 @@ public class QueueUrls {
 		}
 	}
 
-	public boolean isWorking() {
-		return !workingThreadsList.isEmpty() && !waitingThreadsList.isEmpty();
+	public synchronized boolean isWorking(String name) {
+		for (PageReader reader : waitingThreadsList) {
+			if ((!reader.getThreadName().equals(name)) && reader.isWorking()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isEmptyThreads() {
+		return waitingThreadsList.isEmpty() || waitingThreadsList.size() == 1;
 	}
 
 }

@@ -1,8 +1,9 @@
 package ru.iia.fartman.site.services;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,10 +14,13 @@ import ru.iia.fartman.orm.entity.Link;
 import ru.iia.fartman.site.filter.AbstractLinkFilter;
 import ru.iia.fartman.site.filter.LigaLinkFilter;
 
+import javax.annotation.Resource;
 import java.util.Date;
 
 @Component
 public class LigaConfiger extends AbstractConfig<LigaLinkFilter, LigaDataReader> {
+	private static final Logger logger = LogManager.getLogger(LigaConfiger.class);
+
 
 	@Override
 	protected Class<LigaLinkFilter> getFilterClass() {
@@ -38,30 +42,26 @@ public class LigaConfiger extends AbstractConfig<LigaLinkFilter, LigaDataReader>
 		return "liga";
 	}
 
-
+	@Resource
+	Environment env;
 
 	@Autowired
 	ApplicationContext context;
 
-	@Scheduled(fixedRate = 2000000L)
-	public void runner() {
-		startSiteGrabber();
-	}
+	@Scheduled(fixedRate = 2000L)
 	public void startSiteGrabber() {
 		try {
-
 			QueueUrls queueUrls = new QueueUrls();
 			queueUrls.addUrl(Link.createLink(getStartLinkString()));
-			AbstractLinkFilter linkFilter =context.getBean(getFilterClass());
-			IDataReader dataReader =context.getBean(getDataReaderClass());
+			AbstractLinkFilter linkFilter = context.getBean(getFilterClass());
+			IDataReader dataReader = context.getBean(getDataReaderClass());
 			ExecuteStart executeStart = new ExecuteStart();
 			executeStart.setDate(new Date());
 
 			dataReader.setStart(executeStart);
-			for (int i = 0; i < 50; i++) {
+			for (int i = 0; i < 1; i++) {
 				PageReader pageReader = new PageReader(linkFilter, dataReader, queueUrls, getBaseURI());
-				try {
-					Environment env =context.getBean(Environment.class);
+			/*	try {
 					if (env.getProperty("proxy.url") != null) {
 						pageReader.initProxy(env.getProperty("proxy.url"));
 					} else if (env.getProperty("proxy.host") != null && env.getProperty("proxy.port") != null
@@ -71,19 +71,19 @@ public class LigaConfiger extends AbstractConfig<LigaLinkFilter, LigaDataReader>
 								Boolean.parseBoolean(env.getProperty("proxy.host")));
 					}
 				} catch (Exception ex) {
-					//logger.error("error proxy init", ex);
-				}
+					logger.error("error proxy init", ex);
+				}*/
 				pageReader.setThreadName(getThreadsName() + i);
 				Thread thread = new Thread(pageReader, getThreadsName());
 				queueUrls.startThread(pageReader.getThreadName());
 				thread.setDaemon(true);
 				thread.start();
 			}
-			while (queueUrls.isWorking()) {
+			/*while (queueUrls.isWorking(getThreadsName())) {
 				Thread.sleep(1000);
-			}
-		} catch (InterruptedException ex) {
-		//	logger.error("", ex);
+			}*/
+		} catch (Exception ex) {
+			logger.error("", ex);
 		}
 	}
 
