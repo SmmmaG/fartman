@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: IAIsmakaev
+Build-Jdk: 1.8.0_45
+Main-Class: ru.iia.fartman.app.Start
+Class-Path: ./lib/*.*
