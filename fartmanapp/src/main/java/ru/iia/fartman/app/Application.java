@@ -8,24 +8,23 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import ru.iia.fartman.site.services.LigaConfiger;
 
-@SpringBootApplication
+//@SpringBootApplication
 
-@ComponentScan("ru.iia")
+//@ComponentScan("ru.iia")
 public class Application {
-	private static final Logger logger = LogManager.getLogger(Application.class);
+ /*   private static final Logger logger = LogManager.getLogger(Application.class);
 
-	@Autowired
-	private ApplicationContext context;
+    @Autowired
+    private ApplicationContext context;
 
-	public static void main(String... args) {
-		SpringApplication.run(Application.class, args);
-	}
+    public static void main(String... args) {
+        SpringApplication.run(Application.class, args);
+    }
 
-	@Bean
-	public LigaConfiger bean() {
-		return new LigaConfiger();
-	}
+    @Bean
+    public LigaConfiger bean() {
+        return new LigaConfiger();
+    }*/
 }

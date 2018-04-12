@@ -8,9 +8,9 @@ import ru.iia.fartman.orm.entity.Link;
 import java.util.List;
 
 public interface IDataReader {
-	List<DataEntity> read(HtmlPage page, Link link);
+    List<DataEntity> read(HtmlPage page, Link link);
 
-	ExecuteStart getStart();
+    ExecuteStart getStart();
 
-	void setStart(ExecuteStart start);
+    void setStart(ExecuteStart start);
 }

@@ -7,19 +7,19 @@ import ru.iia.fartman.orm.entity.Link;
  */
 public abstract class AbstractLinkFilter {
 
-	/**
-	 * filter link
-	 *
-	 * @param link link object
-	 * @return
-	 */
-	public boolean filter(Link link) {
-		if (null != link && null != link.getLink() && link.getLink().startsWith("http") && link.getLink().length() > 5) {
-			return doFilter(link);
-		}
-		return false;
-	}
+    /**
+     * filter link
+     *
+     * @param link link object
+     * @return
+     */
+    public boolean filter(Link link) {
+        if (null != link && null != link.getLink() && link.getLink().startsWith("http") && link.getLink().length() > 5) {
+            return doFilter(link);
+        }
+        return false;
+    }
 
-	protected abstract boolean doFilter(Link link);
+    protected abstract boolean doFilter(Link link);
 
 }
