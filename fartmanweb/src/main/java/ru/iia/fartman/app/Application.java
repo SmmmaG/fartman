@@ -13,12 +13,22 @@ import ru.iia.fartman.site.services.LigaConfiger;
 @SpringBootApplication
 @ComponentScan("ru.iia")
 public class Application {
-   private static final Logger logger = LogManager.getLogger(Application.class);
+	private static final Logger logger = LogManager.getLogger(Application.class);
 
-    @Autowired
-    private ApplicationContext context;
+	@Autowired
+	private ApplicationContext context;
 
-    public static void main(String... args) {
-        SpringApplication.run(Application.class, args);
-    }
+	public static void main(String... args) {
+		logger.debug("start");
+		SpringApplication.run(Application.class, args);
+		logger.debug("finish");
+	}
+
+	public ApplicationContext getContext() {
+		return context;
+	}
+
+	public void setContext(ApplicationContext context) {
+		this.context = context;
+	}
 }

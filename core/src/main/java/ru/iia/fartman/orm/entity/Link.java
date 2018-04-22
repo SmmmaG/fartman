@@ -17,8 +17,15 @@ public class Link {
     /**
      * link string
      */
-    @Column(name = "link", length = 4096)
+    @Column(name = "linkstring", length = 4096)
     private String link;
+
+    @Column(name="started")
+    private boolean started;
+
+    @ManyToOne
+    @JoinColumn(name = "startId")
+    private ExecuteStart start;
 
     /**
      * Create link from array of link parts
@@ -73,4 +80,19 @@ public class Link {
         this.uuid = uuid;
     }
 
+    public ExecuteStart getStart() {
+        return start;
+    }
+
+    public void setStart(ExecuteStart start) {
+        this.start = start;
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
 }

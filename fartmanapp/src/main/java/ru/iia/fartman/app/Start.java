@@ -15,9 +15,7 @@ public class Start {
 
     public static void main(String... args) {
         ApplicationContext context = new AnnotationConfigApplicationContext("ru.iia");
-        Timer time = new Timer();
-        LigaTask st = new LigaTask(context);
-        time.schedule(st, 0, 1000000);
+        LigaTask st = new LigaTask();
         logger.debug("end all ");
     }
 }

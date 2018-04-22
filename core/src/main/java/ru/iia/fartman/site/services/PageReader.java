@@ -10,16 +10,19 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.iia.fartman.datareader.IDataReader;
-import ru.iia.fartman.orm.entity.DataEntity;
 import ru.iia.fartman.orm.entity.Link;
+import ru.iia.fartman.orm.repositories.LinkRepository;
 import ru.iia.fartman.site.filter.AbstractLinkFilter;
+import ru.iia.fartman.site.services.jms.IJMSSenderService;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -27,7 +30,7 @@ import java.util.Locale;
  * Page reader class implements logic of reading web page
  */
 @Component
-public class PageReader implements Runnable {
+public class PageReader {
 
 	/**
 	 * logger used  for logging information for diagnostic
@@ -41,7 +44,6 @@ public class PageReader implements Runnable {
 	 * default encoding for russian internet
 	 */
 	public static String DEFAULT_ENCODING = "windows-1251";
-	private String name;
 	/**
 	 * web clent - instance of virtual browser
 	 */
@@ -53,18 +55,17 @@ public class PageReader implements Runnable {
 	/**
 	 *
 	 */
-	private QueueUrls queue;
-	/**
-	 *
-	 */
 	private String baseURI;
 	/**
 	 *
 	 */
 	private IDataReader dataReader;
 
-	private String threadName;
-	private boolean isWorking;
+	@Autowired
+	LinkRepository linkRepository;
+
+	@Autowired
+	IJMSSenderService jmsTemplate;
 
 	/**
 	 *
@@ -95,22 +96,18 @@ public class PageReader implements Runnable {
 	public PageReader(AbstractLinkFilter filter, IDataReader dataReader, QueueUrls queue, String baseURI) {
 		this();
 		this.baseURI = baseURI;
-		this.queue = queue;
 		this.filter = filter;
 		this.dataReader = dataReader;
-		this.isWorking = false;
-		queue.startWorkThread(this);
 
 	}
+
 	public void init(AbstractLinkFilter filter, IDataReader dataReader, QueueUrls queue, String baseURI) {
 		this.baseURI = baseURI;
-		this.queue = queue;
 		this.filter = filter;
 		this.dataReader = dataReader;
-		this.isWorking = false;
-		queue.startWorkThread(this);
 
 	}
+
 	public void initProxy(String url) {
 		webClient.getOptions().getProxyConfig().setProxyAutoConfigUrl(url);
 	}
@@ -134,7 +131,6 @@ public class PageReader implements Runnable {
 			WebRequest request = new WebRequest(new URL(link));
 			request.setEncodingType(FormEncodingType.URL_ENCODED);
 			request.setHttpMethod(HttpMethod.GET);
-
 			request.setCharset(Charset.forName(encoding != null ? encoding : DEFAULT_ENCODING));
 			HtmlPage page = webClient.getPage(request);
 			return page;
@@ -148,66 +144,33 @@ public class PageReader implements Runnable {
 		return null;
 	}
 
-	@Override
-	public void run() {
-		try {
-			while (queue.isEmptyThreads() || queue.isWorking(getThreadName())) {
-				isWorking = true;
-				Link currentLink = queue.getNextUrl();
-				try{
 
-				} catch (Throwable e){
-					logger.error("", e);
-				}
-				HtmlPage page = getPage(currentLink.getLink(), null);
-				if (page != null) {
-					List<DataEntity> dataEntity = dataReader.read(page, currentLink);
-					List<HtmlAnchor> list = page.getAnchors();
+	public void doReadLink(Link currentLink) {
+		currentLink.setStarted(true);
+		linkRepository.save(currentLink);
+		HtmlPage page = getPage(currentLink.getLink(), null);
+		if (page != null) {
+			dataReader.read(page, currentLink);
+			List<HtmlAnchor> list = page.getAnchors();
+			for (HtmlAnchor anchor : list) {
+				try {
+					if (!anchor.getHrefAttribute().contains("http:") && !anchor.getHrefAttribute().contains("https:")) {
+						Link link = Link.createLink(baseURI, anchor.getHrefAttribute());
+						if (link != null && filter.filter(link)) {
+							List<Link> links = linkRepository.findByExecuteStartAndLinkstringAndStarted(currentLink.getStart(), link.getLink(), true);
+							if (links.isEmpty()) {
+								link.setStarted(false);
+								linkRepository.save(link);
+								jmsTemplate.sendObject("", new Object(), new HashMap<>());
 
 
-					for (HtmlAnchor anchor : list) {
-						try {
-							if (!anchor.getHrefAttribute().contains("http:") && !anchor.getHrefAttribute().contains("https:")) {
-								Link link = Link.createLink(baseURI, anchor.getHrefAttribute());
-								if (link != null && filter.filter(link)) {
-									if (queue.addUrl(link)) {
-										logger.debug("link: " + link.getLink());
-									}
-								}
 							}
-						} catch (Throwable e) {
-							logger.error("anchor:" + anchor.toString(), e);
 						}
 					}
-			/*List<HtmlLink> listLink = page.();
-			 for (HtmlLink anchor : list) {
-			 Link link = Link.createLink(baseURI, anchor.getHrefAttribute());
-			 if (link != null && filter.filter(link)) {
-			 queue.addUrl(link);
-			 }
-			 }
-			 */
-
-				}
-				isWorking = false;
-				if (queue.isEmptyThreads()) {
-					break;
+				} catch (Throwable e) {
+					logger.error("anchor:" + anchor.toString(), e);
 				}
 			}
-		} finally {
-			queue.endThread(getThreadName());
 		}
-	}
-
-	public String getThreadName() {
-		return threadName;
-	}
-
-	public void setThreadName(String threadName) {
-		this.threadName = threadName;
-	}
-
-	public boolean isWorking() {
-		return isWorking;
 	}
 }
